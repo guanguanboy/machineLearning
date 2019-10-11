@@ -26,3 +26,14 @@ unprinted_designs = ['iphone case', 'robot pendant', 'dodecahedron']
 completed_models = []
 print_models(unprinted_designs, completed_models)
 show_completed_models(completed_models)
+
+
+
+"""
+要将列表的副本传递给函数，可以像下面这样做：
+function_name(list_name[:])
+切片表示法[:] 创建列表的副本
+在print_models.py中， 如果不想清空未打印的设计列表， 可像下面这样调用print_models() 
+print_models(unprinted_designs[:], completed_models)
+
+"""
