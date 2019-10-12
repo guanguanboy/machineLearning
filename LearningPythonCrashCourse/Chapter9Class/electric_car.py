@@ -49,10 +49,3 @@ class ElectricCar(Car):
 
     def fill_gas_tank(self): #重新父类的方法
         print("ElectricCar does not need a gas tank")
-
-
-my_tesla = ElectricCar('tesla', 'model s', 2016)
-print(my_tesla.get_descriptive_name())
-my_tesla.battery.describe_battery()
-my_tesla.fill_gas_tank()
-my_tesla.battery.get_range()
