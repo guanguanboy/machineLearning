@@ -108,7 +108,7 @@ def forward_propagation_with_dropout(X, parameters, keep_prob = 0.5):
     A3 -- last activation value, output of the forward propagation, of shape (1,1)
     cache -- tuple, information stored for computing the backward propagation
     """
-    np.seed(1)
+    np.random.seed(1)
     #retrieve parameters
     W1 = parameters["W1"]
     b1 = parameters["b1"]
@@ -175,7 +175,7 @@ def backward_propagation_with_dropout(X, Y, cache, keep_prob):
     db2 = 1./m * np.sum(dZ2, axis = 1, keepdims = True)
     dA1 = np.dot(W2.T, dZ2)
     
-    dA1 = np.multiply(dA2, D2) # Step 1: Apply mask D2 to shut down the same neurons as during the forward propagation
+    dA1 = np.multiply(dA1, D1) # Step 1: Apply mask D2 to shut down the same neurons as during the forward propagation
     dA1 = dA1 / keep_prob # Step 2: Scale the value of neurons that haven't been shut down
     
     dZ1 = np.multiply(dA1, np.int64(A1 > 0))
@@ -220,7 +220,7 @@ def model(X, Y, learning_rate = 0.3, num_iterations = 30000, print_cost = True, 
         if keep_prob == 1:
             a3, cache = forward_propagation(X, parameters)
         elif keep_prob < 1:
-            a3, cache = forward_propagation_with_dropout()
+            a3, cache = forward_propagation_with_dropout(X, parameters)
 
         #Cost function
         if lamdb == 0:
@@ -257,6 +257,41 @@ def model(X, Y, learning_rate = 0.3, num_iterations = 30000, print_cost = True, 
     return parameters
 
 #train the model without regularization
-parameters = model(train_X, train_Y)
-predictions_train = predict(train_X, train_Y, parameters)
-predictions_test = predict(test_X, test_Y, parameters)
+# parameters = model(train_X, train_Y)
+# predictions_train = predict(train_X, train_Y, parameters)
+# predictions_test = predict(test_X, test_Y, parameters)
+
+#plot the decision boundary of your model
+# plt.title("Model without regularization")
+# axes = plt.gca()
+# axes.set_xlim([-0.75, 0.40])
+# axes.set_ylim([-0.75, 0.65])
+# plot_decision_boundary(lambda x:predict_dec(parameters, x.T), train_X, train_Y)
+
+
+#run the model with L2 regularization(lambda = 0.7)
+# parameters = model(train_X, train_Y, lamdb = 0.7)
+# print("On the train set:")
+# predictions_train = predict(train_X, train_Y, parameters)
+# print("On the test set:")
+# predictions_test = predict(test_X, test_Y, parameters)
+#
+# plt.title("Model with L2-regularization")
+# axes = plt.gca() #Get Current Axes
+# axes.set_xlim([-0.75, 0.40])
+# axes.set_ylim([-0.75, 0.65])
+# plot_decision_boundary(lambda x:predict_dec(parameters, x.T), train_X, train_Y)
+
+
+#run the model with dropout (keep_prob = 0.86)
+parameters = model(train_X, train_Y, keep_prob=0.86, learning_rate=0.3)
+print("On the train set:")
+predictation_train = predict(train_X, train_Y, parameters)
+print("On the test set:")
+predictation_test = predict(train_X, train_Y, parameters)
+
+plt.title("Model with dropout")
+axes = plt.gca()
+axes.set_xlim([-0.75, 0.40])
+axes.set_ylim([-0.75, 0.65])
+plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
