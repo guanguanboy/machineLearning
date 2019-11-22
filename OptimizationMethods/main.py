@@ -92,28 +92,28 @@ def update_parameters_with_momentum(parameters, grads, v, beta, learning_rate):
         v["dW" + str(l + 1)] = beta * v["dW" + str(l + 1)] + (1 - beta) * grads["dW" + str(l + 1)]
         v["db" + str(l + 1)] = beta * v["db" + str(l + 1)] + (1 - beta) * grads["db" + str(l + 1)]
 
-        parameters["dW" + str(l + 1)] = parameters["dW" + str(l + 1)] - learning_rate * v["dW" + str(l + 1)]
-        parameters["db" + str(l + 1)] = parameters["db" + str(l + 1)] - learning_rate * v["db" + str(l + 1)]
+        parameters["W" + str(l + 1)] = parameters["W" + str(l + 1)] - learning_rate * v["dW" + str(l + 1)]
+        parameters["b" + str(l + 1)] = parameters["b" + str(l + 1)] - learning_rate * v["db" + str(l + 1)]
 
     return parameters, v
 
 #test update_parameters_with_momentum
-parameters, grads, v = update_parameters_with_momentum_test_case()
-parameters, v = update_parameters_with_momentum(parameters, grads, v, beta = 0.9, learning_rate = 0.01)
-
-print("W1 = " + str(parameters["W1"]))
-print("b1 = " + str(parameters["b1"]))
-print("W2 = " + str(parameters["W2"]))
-print("b2 = " + str(parameters["b2"]))
-
-print("v[\"dW1\"] = " + str(v["dW1"]))
-print("v[\"db1\"] = " + str(v["db1"]))
-print("v[\"dW2\"] = " + str(v["dW2"]))
-print("v[\"db2\"] = " + str(v["db2"]))
+# parameters, grads, v = update_parameters_with_momentum_test_case()
+# parameters, v = update_parameters_with_momentum(parameters, grads, v, beta = 0.9, learning_rate = 0.01)
+#
+# print("W1 = " + str(parameters["W1"]))
+# print("b1 = " + str(parameters["b1"]))
+# print("W2 = " + str(parameters["W2"]))
+# print("b2 = " + str(parameters["b2"]))
+#
+# print("v[\"dW1\"] = " + str(v["dW1"]))
+# print("v[\"db1\"] = " + str(v["db1"]))
+# print("v[\"dW2\"] = " + str(v["dW2"]))
+# print("v[\"db2\"] = " + str(v["db2"]))
 
 
 def initialize_adam(parameters):
-    L = len(parameters)
+    L = len(parameters) // 2
     v = {}
     s = {}
 
@@ -127,19 +127,19 @@ def initialize_adam(parameters):
     return v, s
 
 #test initialize_adam
-parameters = initialize_adam_test_case()
+# parameters = initialize_adam_test_case()
+#
+# v,s = initialize_adam(parameters)
+# print("v[\"dW1\"] = " + str(v["dW1"]))
+# print("v[\"db1\"] = " + str(v["db1"]))
+# print("v[\"dW2\"] = " + str(v["dW2"]))
+# print("v[\"db2\"] = " + str(v["db2"]))
+# print("s[\"dW1\"] = " + str(s["dW1"]))
+# print("s[\"db1\"] = " + str(s["db1"]))
+# print("s[\"dW2\"] = " + str(s["dW2"]))
+# print("s[\"db2\"] = " + str(s["db2"]))
 
-v,s = initialize_adam(parameters)
-print("v[\"dW1\"] = " + str(v["dW1"]))
-print("v[\"db1\"] = " + str(v["db1"]))
-print("v[\"dW2\"] = " + str(v["dW2"]))
-print("v[\"db2\"] = " + str(v["db2"]))
-print("s[\"dW1\"] = " + str(s["dW1"]))
-print("s[\"db1\"] = " + str(s["db1"]))
-print("s[\"dW2\"] = " + str(s["dW2"]))
-print("s[\"db2\"] = " + str(s["db2"]))
-
-def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01, beta1 = 0.9, beta2 = 0.000, epsilon = 1e-8):
+def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01, beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8):
     L = len(parameters) // 2
     v_corrected = {}
     s_corrected = {}
@@ -164,20 +164,20 @@ def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01
 
 
 #test update_parameters_with_adam
-parameters, grads, v, s = update_parameters_with_adam_test_case()
-parameters, v, s = update_parameters_with_adam(parameters, grads, v, s, t=2)
-print("W1 = " + str(parameters["W1"]))
-print("b1 = " + str(parameters["b1"]))
-print("W1 = " + str(parameters["W1"]))
-print("b1 = " + str(parameters["b1"]))
-print("v[\"dW1\"] = " + str(v["dW1"]))
-print("v[\"dW2\"] = " + str(v["dW2"]))
-print("v[\"db1\"] = " + str(v["db1"]))
-print("v[\"db2\"] = " + str(v["db2"]))
-print("s[\"dW1\"] = " + str(s["dW1"]))
-print("s[\"dW2\"] = " + str(s["dW2"]))
-print("s[\"db1\"] = " + str(s["db1"]))
-print("s[\"db2\"] = " + str(s["db2"]))
+# parameters, grads, v, s = update_parameters_with_adam_test_case()
+# parameters, v, s = update_parameters_with_adam(parameters, grads, v, s, t=2)
+# print("W1 = " + str(parameters["W1"]))
+# print("b1 = " + str(parameters["b1"]))
+# print("W2 = " + str(parameters["W2"]))
+# print("b2 = " + str(parameters["b2"]))
+# print("v[\"dW1\"] = " + str(v["dW1"]))
+# print("v[\"dW2\"] = " + str(v["dW2"]))
+# print("v[\"db1\"] = " + str(v["db1"]))
+# print("v[\"db2\"] = " + str(v["db2"]))
+# print("s[\"dW1\"] = " + str(s["dW1"]))
+# print("s[\"dW2\"] = " + str(s["dW2"]))
+# print("s[\"db1\"] = " + str(s["db1"]))
+# print("s[\"db2\"] = " + str(s["db2"]))
 
 #model with different optimization algorithms
 train_X, train_Y = load_dataset()
@@ -236,7 +236,7 @@ def model(X, Y, layers_dims, optimizer, learning_rate = 0.0007, mini_batch_size 
     plt.title("Learning rate = " + str(learning_rate))
     plt.show()
 
-"""
+
 #mini batch gradient descent
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, optimizer="gd")
@@ -252,6 +252,7 @@ axes.set_ylim([-1, 1.5])
 plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
 
 
+"""
 #mini batch gradient descent with momentum
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, beta = 0.9, optimizer= "momentum")
