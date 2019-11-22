@@ -8,6 +8,10 @@ import sklearn.datasets
 from opt_utils import load_params_and_grads, initialize_parameters, forward_propagation, backward_propagation
 from opt_utils import compute_cost, predict, predict_dec, plot_decision_boundary, load_dataset
 from  testCases import *
+
+plt.rcParams['figure.figsize'] = (7.0, 4.0)
+plt.rcParams['image.interpolation'] = 'nearest'
+plt.rcParams['image.cmap'] = 'gray'
 def update_parameters_with_gd(parameters, grads, learning_rate):
 
     L = len(parameters) // 2 #强制向下取整，这里L计算的是层数：number of layers in neural networks
