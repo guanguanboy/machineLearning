@@ -76,8 +76,8 @@ def initialize_velocity(parameters):
     v = {}
 
     for l in range(L):
-        v["dW" + str(l + 1)] = np.zeros((parameters["dW" + str(l + 1)].shape[0], parameters["dW" + str(l + 1)].shape[1]))
-        v["db" + str(l + 1)] = np.zeros((parameters["db" + str(l + 1)].shape[0], parameters["db" + str(l + 1)].shape[1]))
+        v["dW" + str(l + 1)] = np.zeros((parameters["W" + str(l + 1)].shape[0], parameters["W" + str(l + 1)].shape[1]))
+        v["db" + str(l + 1)] = np.zeros((parameters["b" + str(l + 1)].shape[0], parameters["b" + str(l + 1)].shape[1]))
 
     return v
 
@@ -221,10 +221,10 @@ def model(X, Y, layers_dims, optimizer, learning_rate = 0.0007, mini_batch_size 
             if optimizer == "gd":
                 parameters = update_parameters_with_gd(parameters, grads, learning_rate)
             elif optimizer == "momentum":
-                parameters = update_parameters_with_momentum(parameters, grads, v, beta, learning_rate)
+                parameters, v = update_parameters_with_momentum(parameters, grads, v, beta, learning_rate)
             elif optimizer == "adam":
                 t = t + 1
-                parameters,v,s = update_parameters_with_adam(parameters, grads, v, s,
+                parameters, v, s = update_parameters_with_adam(parameters, grads, v, s,
                                                          t, learning_rate, beta1, beta2, epsilon)
 
         #print the cost every 1000 iterations
@@ -242,6 +242,8 @@ def model(X, Y, layers_dims, optimizer, learning_rate = 0.0007, mini_batch_size 
 
     return parameters
 
+"""
+
 #mini batch gradient descent
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, optimizer="gd")
@@ -255,9 +257,10 @@ axes = plt.gca()
 axes.set_xlim([-1.5, 2.5])
 axes.set_ylim([-1, 1.5])
 plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
-
+"""
 
 """
+
 #mini batch gradient descent with momentum
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, beta = 0.9, optimizer= "momentum")
@@ -271,6 +274,7 @@ axes.set_xlim([-1.5, 2.5])
 axes.set_ylim([-1, 1.5])
 plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
 
+"""
 #mini batch with adam mode
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, optimizer="adam")
@@ -283,5 +287,3 @@ axes = plt.gca()
 axes.set_xlim([-1.5, 2.5])
 axes.set_ylim([-1, 1.5])
 plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
-
-"""
