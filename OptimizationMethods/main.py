@@ -240,20 +240,21 @@ def model(X, Y, layers_dims, optimizer, learning_rate = 0.0007, mini_batch_size 
     plt.title("Learning rate = " + str(learning_rate))
     plt.show()
 
+    return parameters
 
 #mini batch gradient descent
 layers_dims = [train_X.shape[0], 5, 2, 1]
 parameters = model(train_X, train_Y, layers_dims, optimizer="gd")
 
 #predict
-#predictions = predict(train_X, train_Y, parameters)
+predictions = predict(train_X, train_Y, parameters)
 
 #plot decision boundary
-# plt.title("Model with Gradient Descent optimization")
-# axes = plt.gca()
-# axes.set_xlim([-1.5, 2.5])
-# axes.set_ylim([-1, 1.5])
-#plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
+plt.title("Model with Gradient Descent optimization")
+axes = plt.gca()
+axes.set_xlim([-1.5, 2.5])
+axes.set_ylim([-1, 1.5])
+plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y)
 
 
 """
