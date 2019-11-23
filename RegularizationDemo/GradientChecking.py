@@ -78,13 +78,15 @@ def backward_propagation_n(X, Y, cache):
 
     dA2 = np.dot(W3.T, dZ3)
     dZ2 = np.multiply(dA2, np.int64(A2 > 0))
-    dW2 = 1./m * np.dot(dZ2, A1.T) * 2
+    #dW2 = 1./m * np.dot(dZ2, A1.T) * 2 #这行是错误的
+    dW2 = 1. / m * np.dot(dZ2, A1.T) #这行是正确的
     db2 = 1./m * np.sum(dZ2, axis=1, keepdims=True)
 
     dA1 = np.dot(W2.T, dZ2)
     dZ1 = np.multiply(dA1, np.int64(A1 > 0))
     dW1 = 1./m * np.dot(dZ1, X.T)
-    db1 = 4./m * np.sum(dZ1, axis=1, keepdims=True)
+    #db1 = 4./m * np.sum(dZ1, axis=1, keepdims=True)
+    db1 = 1. / m * np.sum(dZ1, axis=1, keepdims=True) #这行是正确的
 
     gradients = {"dZ3": dZ3, "dW3":dW3, "db3": db3,
                  "dA2": dA2, "dZ2":dZ2, "dW2": dW2, "db2":db2,
