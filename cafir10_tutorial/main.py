@@ -5,13 +5,13 @@ import torchvision.transforms as transforms
 transform = transforms.Compose([transforms.ToTensor(),
                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                        download=True,transform=transform)
+                                        download=False,transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size = 4,
-                                          shuffle=True, num_workers=1)
+                                          shuffle=True, num_workers=0)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                       download=True, transform=transform)
+                                       download=False, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                         shuffle=False, num_workers=1)
+                                         shuffle=False, num_workers=0)
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse','ship', 'truck')
 
 #show some of the training images for fun
@@ -36,7 +36,7 @@ print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
 
 #define a CNN
 import torch.nn as nn
-import torch.nn.functionnal as F
+import torch.nn.functional as F
 
 class Net(nn.Module):
     def __init__(self):
