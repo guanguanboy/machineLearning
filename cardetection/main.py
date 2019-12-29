@@ -27,8 +27,8 @@ yolo_model = load_model("model_data/yolo.h5")
 
 yolo_model.summary()
 
-yolo_outputs = yolo_head(yolo_model.output, anchors, len(class_names))
+#yolo_outputs = yolo_head(yolo_model.output, anchors, len(class_names))
 #filtering boxes
-scores, boxes, classes = yolo_eval(yolo_outputs, image_shape)
+#scores, boxes, classes = yolo_eval(yolo_outputs, image_shape)
 
 #run the graph on a image
