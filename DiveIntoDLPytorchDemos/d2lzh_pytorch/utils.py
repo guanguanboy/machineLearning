@@ -86,7 +86,7 @@ def show_fashion_mnist(images, labels):
         f.set_title(lbl)
         f.axes.get_xaxis().set_visible(False)
         f.axes.get_yaxis().set_visible(False)
-    # plt.show()
+    plt.show()
 
 # 5.6 修改
 # def load_data_fashion_mnist(batch_size, root='~/Datasets/FashionMNIST'):
