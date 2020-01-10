@@ -33,7 +33,7 @@ init.constant_(net.linear.bias, val=0)
 
 loss = nn.CrossEntropyLoss()
 
-optimizer = torch.optim.SGD(net.parameters(),lr=0.1)
+optimizer = torch.optim.SGD(net.parameters(),lr=0.05)
 
 num_epochs = 5
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, None, None, optimizer)

@@ -14,7 +14,7 @@ true_b = 4.2
 features = torch.randn(num_examples, num_inputs, dtype=torch.float32)
 
 labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += torch.tensor(np.random.normal(0, 0.01, size=labels.size()), dtype=torch.float32)
+labels += torch.tensor(np.random.normal(0, 0.01, size=labels.size()), dtype=torch.float32) #给数据加点噪声
 
 #读取数据
 import torch.utils.data as Data
