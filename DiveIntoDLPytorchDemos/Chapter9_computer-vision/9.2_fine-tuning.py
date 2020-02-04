@@ -66,6 +66,7 @@ output_params = list(map(id, pretrained_net.fc.parameters()))
 feature_params = filter(lambda p: id(p) not in output_params, pretrained_net.parameters())
 
 lr = 0.01
+
 optimizer = optim.SGD([{'params' : feature_params},
                        {'params' : pretrained_net.fc.parameters(),
                         'lr' : lr * 10}],
@@ -109,4 +110,18 @@ epoch 4, loss 0.0899, train acc 0.840, test acc 0.838, time 16.9 sec
 epoch 5, loss 0.0813, train acc 0.814, test acc 0.846, time 17.0 sec
 
 从结果可以看到，微调的模型因为参数初始值更好，往往再相同迭代周期下取得更高的精度
+"""
+
+"""
+练习：
+不断增⼤finetune_net 的学习率。精度会有什么变化？
+lr=0.1时
+epoch 1, loss 33.9988, train acc 0.492, test acc 0.500, time 17.0 sec
+epoch 2, loss 3.4263, train acc 0.529, test acc 0.500, time 16.7 sec
+epoch 3, loss 0.8912, train acc 0.511, test acc 0.685, time 16.6 sec
+epoch 4, loss 0.2776, train acc 0.642, test acc 0.500, time 16.8 sec
+epoch 5, loss 0.2164, train acc 0.580, test acc 0.611, time 16.8 sec
+
+从结果看，学习率从0.01变成0.1之后，精度下降明显
+
 """
