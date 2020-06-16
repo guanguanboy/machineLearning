@@ -241,6 +241,8 @@ def createTree(dataSet, labels, featLabels):
 
     return myTree
 
+"""
+
 if __name__=='__main__':
     dataSet, labels=createDataSet()
     #print(dataSet)
@@ -249,3 +251,52 @@ if __name__=='__main__':
     featLabels=[]
     myTree=createTree(dataSet, labels, featLabels)
     print(myTree)
+"""
+
+"""
+使用决策树进行分类
+Parameters：
+    inputTree；已经生成的决策树
+    featLabels：存储选择的最优特征标签
+    testVec：测试数据列表，顺序对应最优特征标签
+Returns：
+    classLabel：分类结果
+Modify：2018-03-13
+
+依靠训练数据构造了决策树之后，我们可以将它用于实际数据的分类。
+在执行数据分类时，需要决策树以及用于构造树的标签向量。
+然后，程序比较测试数据与决策树上的数值，递归执行该过程直到进入叶子结点；最后将测试数据定义为叶子结点所属的类型。
+在构建决策树的代码，可以看到，有个featLabels参数。它是用来干什么的？
+它就是用来记录各个分类结点的，在用决策树做预测的时候，我们按顺序输入需要的分类结点的属性值即可。
+举个例子，比如我用上述已经训练好的决策树做分类，那么我只需要提供这个人是否有房子，是否有工作这两个信息即可，无需提供冗余的信息。
+
+"""
+def classify(inputTree, featLabels, testVec):
+    #获取决策树节点
+    firstStr=next(iter(inputTree))
+
+    #下一个字典
+    secondDict = inputTree[firstStr]
+    featIndex=featLabels.index(firstStr)
+
+    for key in secondDict.keys():
+        if testVec[featIndex] == key:
+            if type(secondDict[key]).__name__=='dict':
+                classLabel=classify(secondDict[key], featLabels, testVec)
+            else:
+                classLabel = secondDict[key]
+    return classLabel
+
+if __name__=='__main__':
+    dataSet, labels=createDataSet()
+    featLabels=[]
+    myTree=createTree(dataSet, labels, featLabels)
+
+    #测试数据
+    testVec=[0,1] #表示没有房子，但是有工作，由于决策树中只需要这两个信息，所以我们把这两个信息输入之后就可以了
+    result=classify(myTree, featLabels, testVec)
+
+    if result=='yes':
+        print('放贷')
+    if result=='no':
+        print('不放贷')
