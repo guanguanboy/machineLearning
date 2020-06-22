@@ -208,11 +208,11 @@ def createTree(dataSet, labels, featLabels):
     #取分类标签（是否放贷：yes or no）
     classList = [example[-1] for example in dataSet]
 
-    #如果类别完全相同，则停止继续划分
+    #如果类别完全相同，则停止继续划分，所有实例都属于同一类
     if classList.count(classList[0]) == len(classList):
         return classList[0]
 
-    #遍历完所有特征时，返回出现次数最多的类标签，当dataSet中一条记录的长度为1（只包含标签了）时
+    #遍历完所有特征时，返回出现次数最多的类标签，当dataSet中一条记录的长度为1（只包含标签了）时，也就是特征集为0的情况
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
 
@@ -273,7 +273,7 @@ Modify：2018-03-13
 """
 def classify(inputTree, featLabels, testVec):
     #获取决策树节点
-    firstStr=next(iter(inputTree))
+    firstStr=next(iter(inputTree))#通过iter，将字典inputTree转换为可迭代对象，通过next函数返回可迭代对象的下一个元素
 
     #下一个字典
     secondDict = inputTree[firstStr]
