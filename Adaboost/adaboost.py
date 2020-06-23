@@ -31,15 +31,15 @@ def showPlot(xMat, yMat):
     xMat:数据矩阵
     i:第i列，也就是第几个特征
     Q:阈值
-    S:标志
+    S:标志，取值为['lt', 'gt']
 返回：
     re:分类结果
 """
 def classify0(xMat,i, Q, S):
     re = np.ones((xMat.shape[0],1)) #初始化re为1
-    if S == 'lt':
-        re[xMat[:,i] <= Q] = -1 #如果小于阈值，则赋值为-1
-    else:
+    if S == 'lt': #如果运算规则是less than
+        re[xMat[:,i] <= Q] = -1 #如果小于等于阈值，则赋值为-1
+    else: #如果运算规则是great than
         re[xMat[:,i] > Q] = -1 #如果大于阈值，则赋值为-1
     return re
 
