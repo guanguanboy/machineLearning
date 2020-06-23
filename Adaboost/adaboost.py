@@ -212,4 +212,5 @@ def plotROC(predStrengths, classLabels):
     plt.title('ROC curve for AdaBoost horse colic detection system')
     ax.axis([0,1,0,1])
     plt.show()
-    print("the Area Under the Curve is: "+ ySum*xStep)
+    print("the Area Under the Curve is: ")
+    print(ySum*xStep)
