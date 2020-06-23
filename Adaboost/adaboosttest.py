@@ -35,6 +35,9 @@ test = pd.read_table('horseColicTest2.txt', header=None)
 adaboost.calAcc(maxC=40)
 
 #不同弱分类器数目的各种情况下，adaboost算法预测的准确率
+
+"""
+
 Cycles=[1, 10, 50, 100, 500, 1000, 10000]
 train_acc=[]
 test_acc=[]
@@ -47,3 +50,12 @@ df = pd.DataFrame({'分类器数目': Cycles,
                    '训练集准确率': train_acc,
                    '测试集准确率':test_acc})
 print(df)
+
+"""
+datArr, labelArr = adaboost.loadDataSet('horseColicTraining2.txt')
+trainxMat, trainyMat = adaboost.getMat('horseColicTraining2.txt')
+m = trainxMat.shape[0]
+weakClass, aggClass = adaboost.Ada_train(trainxMat, trainyMat, 10)
+
+#绘制病马数据集roc曲线
+adaboost.plotROC(aggClass.T, labelArr)
