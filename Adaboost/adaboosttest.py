@@ -1,5 +1,6 @@
 import adaboost
 import numpy as np
+import pandas as pd
 
 datMat, classLabels=adaboost.loadSimpleData()
 #adaboost.showPlot(datMat, classLabels)
@@ -23,3 +24,26 @@ print(aggClass)
 #基于Adaboost的分类
 finalClass = adaboost.AdaClassify([0,0], weakClass)
 print(finalClass)
+
+#如下为使用Adaboost在病马数据集上的分类的代码
+
+#载入数据
+train = pd.read_table('horseColicTraining2.txt', header=None)
+test = pd.read_table('horseColicTest2.txt', header=None)
+
+
+adaboost.calAcc(maxC=40)
+
+#不同弱分类器数目的各种情况下，adaboost算法预测的准确率
+Cycles=[1, 10, 50, 100, 500, 1000, 10000]
+train_acc=[]
+test_acc=[]
+for maxC in Cycles:
+    a, b = adaboost.calAcc(maxC)
+    train_acc.append(round(a*100,2))
+    test_acc.append(round(b*100, 2))
+
+df = pd.DataFrame({'分类器数目': Cycles,
+                   '训练集准确率': train_acc,
+                   '测试集准确率':test_acc})
+print(df)

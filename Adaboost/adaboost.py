@@ -136,3 +136,51 @@ def AdaClassify(data, weakClass):
         aggClass += weakClass[i]['alpha'] * classEst
     return np.sign(aggClass)
 
+
+# 构建分类函数
+def calAcc(maxC=40):
+    trainxMat, trainyMat = getMat('horseColicTraining2.txt')
+    m = trainxMat.shape[0]
+    weakClass, aggClass = Ada_train(trainxMat, trainyMat, maxC)
+    yhat = AdaClassify(trainxMat, weakClass)
+    train_re = 0
+    for i in range(m):
+        if yhat[i] == trainyMat[i]:
+            train_re += 1
+    train_acc = train_re/m
+    print(f'训练集准确率为{train_acc}')
+
+    test_re = 0
+    testxMat, testyMat = getMat('horseColicTest2.txt')
+    n = testxMat.shape[0]
+    yhat = AdaClassify(testxMat, weakClass)
+    for i in range(n):
+        if yhat[i] == testyMat[i]:
+            test_re +=1
+    test_acc = test_re/n
+    print(f'测试集准确率为{test_acc}')
+
+    return train_acc, test_acc
+
+def loadDataSet(fileName):      # general function to parse tab-delimited floats
+    numFeat = len(open(fileName).readline().split('\t')) # get number of fields
+    dataMat = []
+    labelMat = []
+    fr = open(fileName)
+    for line in fr.readlines():
+        lineArr = []
+        curLine = line.strip().split('\t')
+        for i in range(numFeat-1):
+            lineArr.append(float(curLine[i]))
+        dataMat.append(lineArr)
+        labelMat.append(float(curLine[-1]))
+    return dataMat, labelMat
+
+def getMat(fileName):
+    dataList, labelList = loadDataSet(fileName)
+    datamat = np.matrix(dataList)
+    print(datamat.shape)
+    m = datamat.shape[0]
+    labelarray = np.array(labelList)
+    labelarray = labelarray.reshape((m,1))
+    return datamat,labelarray
