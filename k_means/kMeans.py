@@ -35,7 +35,7 @@ def kMeans(dataSet, k, distMeas=distEclud, createCent=randCent):
     clusterAssment = mat(zeros((m,2))) # create mat to assign data points
                                         # to a centroid, also holds SE of each point
     #簇分配结果矩阵clusterAssment包含两列，一列记录簇索引值，第二列存储误差。这里的误差
-    #是指当前点到簇质心的就，后边会使用该误差来评价聚类的效果。
+    #是指当前点到簇质心的距离，后边会使用该误差来评价聚类的效果。
     centroids = createCent(dataSet, k)
     clusterChanged = True
     while clusterChanged: #直到数据点的分配结果不再改变
@@ -61,7 +61,7 @@ def kMeans(dataSet, k, distMeas=distEclud, createCent=randCent):
 def biKmeans(dataSet, k, distMeas=distEclud):
     m = shape(dataSet)[0] #数据点个数
     clusterAssment = mat(zeros((m,2))) #来存储数据集中每个点的簇分配结果及平方误差
-    centroid0 = mean(dataSet, axis=0).tolist()[0] #计算整个数据集的质心
+    centroid0 = mean(dataSet, axis=0).tolist()[0] #计算整个数据集的质心,对于mat来说，tolist()之后还是一个一维mat，要想得到列表，后面需要[0]
     centList = [centroid0] # create a list with one centroid，使用一个列表来保存所有的质心
     for j in range(m): #计算初始的错误值
         clusterAssment[j, 1] = distMeas(mat(centroid0), dataSet[j,:])**2
