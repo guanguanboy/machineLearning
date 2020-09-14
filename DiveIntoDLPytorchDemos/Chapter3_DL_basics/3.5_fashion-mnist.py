@@ -18,6 +18,8 @@ mnist_test = torchvision.datasets.FashionMNIST(root='~/Datasets/FashionMNIST', t
 print(type(mnist_test))
 print(len(mnist_train), len(mnist_test))
 
+print(type(mnist_train))
+
 #获取第一个样本的图像和标签
 feature, label = mnist_train[0]
 print(feature.shape, feature.dtype)

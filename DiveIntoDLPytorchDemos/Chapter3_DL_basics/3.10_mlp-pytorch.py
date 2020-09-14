@@ -23,7 +23,7 @@ for params in net.parameters():
 
 #读取数据训练
 batch_size = 256
-train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, root='./Datasets/FashionMNIST')
 loss = nn.CrossEntropyLoss()
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.5)

@@ -11,7 +11,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import sys
 sys.path.append("..")
 import d2lzh_pytorch as d2l
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 print(device)
 
 #9.1.1 常用的图像增广方法
