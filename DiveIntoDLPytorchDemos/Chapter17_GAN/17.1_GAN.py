@@ -136,3 +136,17 @@ lr_D, lr_G, latent_dim, num_epochs = 0.05, 0.005, 2, 20
 train(net_D, net_G, data_iter, num_epochs, lr_D, lr_G,
       latent_dim, d2l.numpy(data[:100]))
 
+"""
+Summary
+1,Generative adversarial networks composes of two deep networks,
+the generator and the discriminator.
+
+2,The generator generates the image as much closer to the true image as 
+possible to fool the discriminator
+via maximizing the cross-entropy loss.
+
+3,The discriminator tries to distinguish the generated images
+from the true images, via
+minimizing the cross-entropy loss.
+
+"""
