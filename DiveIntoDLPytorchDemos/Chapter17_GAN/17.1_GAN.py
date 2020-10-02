@@ -1,9 +1,10 @@
+from d2l import torch as d2l
+
 import torch
 from torch import nn
 import sys
 sys.path.append("..")
 
-import d2lzh_pytorch as d2l
 
 
 #generate some real data
@@ -17,11 +18,12 @@ data = torch.matmul(X, A) + b
 d2l.set_figsize()
 d2l.plt.scatter(d2l.numpy(data[:100, 0]), d2l.numpy(data[:100, 1]));
 print(f'The covariance matrix is\n{torch.matmul(A.T, A)}')
+d2l.plt.show()
 
 batch_size = 8
 data_iter = d2l.load_array((data, ), batch_size)
 
-# Our generator network will be the simplest network possible- a gingle layer linear model.
+# Our generator network will be the simplest network possible- a single layer linear model.
 # This is since we will be drving that linear network with a Gaussian data generator. Hence, it
 # literally only needs to learn the parameters to fake things perfectly.
 net_G = nn.Sequential(nn.Linear(2,2))
@@ -30,11 +32,11 @@ net_G = nn.Sequential(nn.Linear(2,2))
 # For the discriminator we will be a bit more discriminating: we will use an MLP with 3
 # layers to make things a bit more interesting.
 net_D = nn.Sequential(
-    nn.Linear(2,5),
+    nn.Linear(2, 5),
     nn.Tanh(),
-    nn.Linear(5,3),
+    nn.Linear(5, 3),
     nn.Tanh(),
-    nn.Linear(3,1)
+    nn.Linear(3, 1)
 )
 
 #training
@@ -82,7 +84,7 @@ def update_G(Z, net_D, net_G, loss, trainer_G):
 #In each iteration, we first update the discriminator and
 #then the generator, We visualize both losses and generated examples.
 def train(net_D, net_G, data_iter, num_epochs, lr_D, lr_G, latent_dim, data):
-    loss = nn.BCEWithLogitsLoss(reduction=sum)
+    loss = nn.BCEWithLogitsLoss(reduction='sum')
     for w in net_D.parameters():
         nn.init.normal_(w, 0, 0.02)
 
@@ -96,7 +98,7 @@ def train(net_D, net_G, data_iter, num_epochs, lr_D, lr_G, latent_dim, data):
                             ylabel='loss',
                             xlim=[1, num_epochs],
                             nrows=2,
-                            figsize=(5,3),
+                            figsize=(5, 5),
                             legend=['discriminator', 'generator'])
     animator.fig.subplots_adjust(hspace=0.3)
     for epoch in range(num_epochs):
@@ -122,8 +124,11 @@ def train(net_D, net_G, data_iter, num_epochs, lr_D, lr_G, latent_dim, data):
         #show the losses
         loss_D, loss_G = metric[0]/metric[2], metric[1]/metric[2]
         animator.add(epoch+1, (loss_D, loss_G))
+
     print(f'loss_D {loss_D:.3f}, loss_G {loss_G:.3f}'
           f'{metric[2]/timer.stop():.1f} examples/sec')
+
+    d2l.plt.show()
 
 
 #Now we specify the hyperparameters to fit the Gaussian distributtion
@@ -131,3 +136,17 @@ lr_D, lr_G, latent_dim, num_epochs = 0.05, 0.005, 2, 20
 train(net_D, net_G, data_iter, num_epochs, lr_D, lr_G,
       latent_dim, d2l.numpy(data[:100]))
 
+"""
+Summary
+1,Generative adversarial networks composes of two deep networks,
+the generator and the discriminator.
+
+2,The generator generates the image as much closer to the true image as 
+possible to fool the discriminator
+via maximizing the cross-entropy loss.
+
+3,The discriminator tries to distinguish the generated images
+from the true images, via
+minimizing the cross-entropy loss.
+
+"""
