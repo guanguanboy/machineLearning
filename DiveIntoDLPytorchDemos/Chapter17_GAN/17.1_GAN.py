@@ -14,6 +14,11 @@ A = torch.tensor([[1, 2], [-0.1, 0.5]])
 b = torch.tensor([1, 2])
 data = torch.matmul(X, A) + b
 
+#输出均值为0，标准差为1的 1000个2维的样本
+
+print(X.shape)
+print(data.shape)
+print(data)
 #This should be a Gaussian shifted in some rather arbitary way with mean b and covariance matrix A(T)A
 d2l.set_figsize()
 d2l.plt.scatter(d2l.numpy(data[:100, 0]), d2l.numpy(data[:100, 1]));
