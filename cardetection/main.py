@@ -16,7 +16,7 @@ from yad2k.models.keras_yolo import yolo_head, yolo_boxes_to_corners, preprocess
 
 #3 test yolo pretrained model on images
 sess = K.get_session()
-
+#sess = tf.compat.v1.keras.backend.get_session()
 #3.1 defining classes, anchors and iamge shape
 class_names = read_classes("model_data/coco_classes.txt")
 anchors = read_anchors("model_data/yolo_anchors.txt")
