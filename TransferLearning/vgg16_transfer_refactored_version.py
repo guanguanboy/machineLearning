@@ -151,96 +151,103 @@ time_open = time.time()
 loss_set = []
 Acc_set = []
 
-best_acc = 0
 
 # 模型保存
 filename = 'vgg16_checkpoint.pth'
 
 best_model_wts = copy.deepcopy(model.state_dict())
 
-for epoch in range(epoch_n):
-    print("Epoch {}/{}".format(epoch + 1, epoch_n))
-    print("-" * 10)
+def train_model(model, dataloaders, criterion, optimizer, epoch_n, filename):
 
-    for phase in ["train", "val"]:
-        if phase == "train":
-            print("Training...")
-            # 设置为True，会进行Dropout并使用batch mean和batch var
-            model.train(True)
-        else:
-            print("Validing...")
-            # 设置为False，不会进行Dropout并使用running mean和running var
-            model.train(False)
+    best_acc = 0
 
-        running_loss = 0.0
-        running_corrects = 0
 
-        # enuerate(),返回的是索引和元素值，数字1表明设置start=1，即索引值从1开始
-        for batch, data in enumerate(dataloaders[phase], 1):
-            # X: 图片，16*3*224*224; y: 标签，16
-            X, y = data
+    for epoch in range(epoch_n):
+        print("Epoch {}/{}".format(epoch + 1, epoch_n))
+        print("-" * 10)
 
-            # 修改处
-            if Use_gpu:
-                X, y = Variable(X.cuda()), Variable(y.cuda())
-            else:
-                X, y = Variable(X), Variable(y)
-
-            # y_pred: 预测概率矩阵，16*2
-            y_pred = model(X)
-
-            # pred，概率较大值对应的索引值，可看做预测结果
-            _, pred = torch.max(y_pred.data, 1)
-
-            # 梯度归零
-            optimizer.zero_grad()
-
-            # 计算损失
-            loss = loss_f(y_pred, y)
-
-            # 若是在进行模型训练，则需要进行后向传播及梯度更新
+        for phase in ["train", "val"]:
             if phase == "train":
-                loss.backward()
-                optimizer.step()
-                #scheduler.step()
+                print("Training...")
+                # 设置为True，会进行Dropout并使用batch mean和batch var
+                model.train(True)
+            else:
+                print("Validing...")
+                # 设置为False，不会进行Dropout并使用running mean和running var
+                model.train(False)
 
-            # 计算损失和
-            running_loss += float(loss)
+            running_loss = 0.0
+            running_corrects = 0
 
-            # 统计预测正确的图片数
-            running_corrects += torch.sum(pred == y.data)
+            # enuerate(),返回的是索引和元素值，数字1表明设置start=1，即索引值从1开始
+            for batch, data in enumerate(dataloaders[phase], 1):
+                # X: 图片，16*3*224*224; y: 标签，16
+                X, y = data
 
-            # 共20000张测试图片，1250个batch，在使用500个及1000个batch对模型进行训练之后，输出训练结果
-            if batch % 500 == 0 and phase == "train":
-                print("Batch {}, Train Loss:{:.4f}, Train ACC:{:.4F}%".format(batch, running_loss / batch,
-                                                                              100 * running_corrects / (16 * batch)))
-          #  print(y)
-          #  confusion = confusion_matrix(y.data, pred)
+                # 修改处
+                if Use_gpu:
+                    X, y = Variable(X.cuda()), Variable(y.cuda())
+                else:
+                    X, y = Variable(X), Variable(y)
 
-        epoch_loss = running_loss * 16 / len(image_datasets[phase])
-        epoch_acc = 100 * running_corrects / len(image_datasets[phase])
-        if phase == "train":
-            loss_set.append(epoch_loss)
-            Acc_set.append(epoch_acc)
-        # 输出最终的结果
-        print("{} Loss:{:.4f} Acc:{:.4f}%".format(phase, epoch_loss, epoch_acc))
+                # y_pred: 预测概率矩阵，16*2
+                y_pred = model(X)
 
-        if phase == 'val':
-            scheduler.step()
+                # pred，概率较大值对应的索引值，可看做预测结果
+                _, pred = torch.max(y_pred.data, 1)
 
-        if phase == 'val' and epoch_acc > best_acc:
-            best_acc = epoch_acc
-            best_model_wts = copy.deepcopy(model.state_dict())
-            state = {
-                'state_dict': model.state_dict(),
-                'best_acc': best_acc,
-                'optimizer': optimizer.state_dict(),
-            }
-            torch.save(state, filename)
-            print('model saved')
+                # 梯度归零
+                optimizer.zero_grad()
 
-    print('Optimizer learning rate : {:.7f}'.format(optimizer.param_groups[0]['lr']))
+                # 计算损失
+                loss = criterion(y_pred, y)
 
+                # 若是在进行模型训练，则需要进行后向传播及梯度更新
+                if phase == "train":
+                    loss.backward()
+                    optimizer.step()
+                    #scheduler.step()
+
+                # 计算损失和
+                running_loss += float(loss)
+
+                # 统计预测正确的图片数
+                running_corrects += torch.sum(pred == y.data)
+
+                # 共20000张测试图片，1250个batch，在使用500个及1000个batch对模型进行训练之后，输出训练结果
+                if batch % 500 == 0 and phase == "train":
+                    print("Batch {}, Train Loss:{:.4f}, Train ACC:{:.4F}%".format(batch, running_loss / batch,
+                                                                                  100 * running_corrects / (16 * batch)))
+              #  print(y)
+              #  confusion = confusion_matrix(y.data, pred)
+
+            epoch_loss = running_loss * 16 / len(image_datasets[phase])
+            epoch_acc = 100 * running_corrects / len(image_datasets[phase])
+            if phase == "train":
+                loss_set.append(epoch_loss)
+                Acc_set.append(epoch_acc)
+            # 输出最终的结果
+            print("{} Loss:{:.4f} Acc:{:.4f}%".format(phase, epoch_loss, epoch_acc))
+
+            if phase == 'val':
+                scheduler.step()
+
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = copy.deepcopy(model.state_dict())
+                state = {
+                    'state_dict': model.state_dict(),
+                    'best_acc': best_acc,
+                    'optimizer': optimizer.state_dict(),
+                }
+                torch.save(state, filename)
+                print('model saved')
+
+        print('Optimizer learning rate : {:.7f}'.format(optimizer.param_groups[0]['lr']))
+
+#train_model(model, dataloaders, loss_f, optimizer, epoch_n, filename)
+
+"""
 # 输出模型训练、参数优化用时
 time_end = time.time() - time_open
 print(time_end)
@@ -256,5 +263,21 @@ plt.plot(tt, Acc_set, '-')
 plt.xlabel('Echo')
 plt.ylabel('Acc')
 plt.show()
+"""
 
 #下面这一部分再继续以可衰减的更小的学习率训练所有层
+for parm in model.parameters():
+    parm.requires_grad = True
+
+optimizer = torch.optim.Adam(model.classifier.parameters(), lr=1e-4)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+
+#load the checkpoint
+checkpoint = torch.load(filename)
+best_acc = checkpoint['best_acc']
+model.load_state_dict(checkpoint['state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer'])
+
+filename_train_all_layers = 'alllayer_vgg16_checkpoint.pth'
+
+train_model(model, dataloaders, loss_f, optimizer, epoch_n, filename_train_all_layers)

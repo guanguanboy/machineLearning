@@ -1,5 +1,6 @@
 # License: BSD
 # Author: Sasank Chilamkurthy
+#来自于https://pytorch.org/tutorials/intermediate/quantized_transfer_learning_tutorial.html
 
 from __future__ import print_function, division
 
