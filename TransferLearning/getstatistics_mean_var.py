@@ -4,7 +4,7 @@ import torchvision
 from torchvision import datasets, transforms, models
 import os
 
-def getStat(train_data):
+def getStat(train_data, dim=3):
     '''
     Compute mean and variance for training data
     :param train_data: 自定义类Dataset(或ImageFolder即可)
@@ -15,10 +15,10 @@ def getStat(train_data):
     train_loader = torch.utils.data.DataLoader(
         train_data, batch_size=1, shuffle=False, num_workers=0,
         pin_memory=True)
-    mean = torch.zeros(3)
-    std = torch.zeros(3)
+    mean = torch.zeros(dim)
+    std = torch.zeros(dim)
     for X, _ in train_loader:
-        for d in range(3):
+        for d in range(dim):
             mean[d] += X[:, d, :, :].mean()
             std[d] += X[:, d, :, :].std()
     mean.div_(len(train_data))
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     data_dir = 'Datasets/datasets_detcting'
     # 加载数据这部分需要重新编写代码，使其可以加载我们自己的图片
     # Compose函数将图片的几种变换组合起来
-    data_transforms = {
+    data_transforms_224 = {
         'train': transforms.Compose([
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
@@ -51,9 +51,35 @@ if __name__ == '__main__':
         ]),
     }
 
+    data_transforms_112_gray = {
+        'train': transforms.Compose([
+            transforms.Resize(128),  # 缩放图片，保持长宽比不变，最短边的长为256像素,
+            transforms.CenterCrop(112),  # 从中间切出 224*224的图片
+            transforms.Grayscale(),  # 将图片变成灰度图片
+            transforms.ToTensor(),  # 将图片转换为Tensor,归一化至[0,1]
+            # transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
+            #transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        ]),
+        'val': transforms.Compose([
+            transforms.Resize(128),  # 缩放图片，保持长宽比不变，最短边的长为256像素,
+            transforms.CenterCrop(112),  # 从中间切出 224*224的图片
+            transforms.Grayscale(),#将图片变成灰度图片
+            transforms.ToTensor(),  # 将图片转换为Tensor,归一化至[0,1]
+
+            # transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
+            #transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        ]),
+    }
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                              data_transforms[x])
+                                              data_transforms_224[x])
                       for x in ['train', 'val']}
 
-    print(getStat(image_datasets['train']))
-    print(getStat(image_datasets['val']))
+    print(getStat(image_datasets['train'], 3))
+    print(getStat(image_datasets['val'], 3))
+
+    image_datasets_gray = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+                                                   data_transforms_112_gray[x])
+                      for x in ['train', 'val']}
+
+    print(getStat(image_datasets_gray['train'], 1))
+    print(getStat(image_datasets_gray['val'], 1))

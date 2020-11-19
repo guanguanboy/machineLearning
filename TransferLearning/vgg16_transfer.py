@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import time
 import numpy as np
 from sklearn.metrics import confusion_matrix
-import copy
+
 """
 data_dir = './data/DogsVSCats'
 # 定义要对数据进行的处理
@@ -73,8 +73,8 @@ data_transforms = {
         transforms.RandomHorizontalFlip(),
         #transforms.Grayscale(),  # 将图片变成灰度图片
         transforms.ToTensor(),#将图片转换为Tensor,归一化至[0,1]
-        transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
-        #transforms.Normalize([0.564, 0.564, 0.564], [0.064, 0.064, 0.064])
+        #transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
+        transforms.Normalize([0.564, 0.564, 0.564], [0.064, 0.064, 0.064])
     ]),
     'val': transforms.Compose([
         transforms.Resize(256), #缩放图片，保持长宽比不变，最短边的长为256像素,
@@ -82,15 +82,17 @@ data_transforms = {
         #transforms.Grayscale(),#将图片变成灰度图片
         transforms.ToTensor(),#将图片转换为Tensor,归一化至[0,1]
 
-        transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
+        #transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
         #transforms.Normalize([0.5, 0.5, 0.5],[0.5, 0.5, 0.5])
-        #transforms.Normalize([0.564, 0.564, 0.564],[0.079, 0.079, 0.079])
+        transforms.Normalize([0.564, 0.564, 0.564],[0.079, 0.079, 0.079])
     ]),
 }
 
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
+
+print(image_datasets['train'][0][0].size)
 
 image, label = next(iter(image_datasets['train']))
 
@@ -118,6 +120,7 @@ inputs, classes = next(iter(dataloaders['train']))
 
 # 下载已经具备最优参数的VGG16模型
 model = models.vgg16(pretrained=True)
+print(model)
 # 查看迁移模型细节
 # print("迁移VGG16:\n", model)
 
@@ -142,22 +145,13 @@ if Use_gpu:
 
 # 定义代价函数和优化函数
 loss_f = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.001)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)#学习率每7个epoch衰减成原来的1/10
+optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.0001)
 
 # 模型训练和参数优化
-epoch_n = 25
+epoch_n =100
 time_open = time.time()
 loss_set = []
 Acc_set = []
-
-best_acc = 0
-
-# 模型保存
-filename = 'vgg16_checkpoint.pth'
-
-best_model_wts = copy.deepcopy(model.state_dict())
-
 for epoch in range(epoch_n):
     print("Epoch {}/{}".format(epoch + 1, epoch_n))
     print("-" * 10)
@@ -191,25 +185,32 @@ for epoch in range(epoch_n):
 
             # pred，概率较大值对应的索引值，可看做预测结果
             _, pred = torch.max(y_pred.data, 1)
-
+            #print('ypred:')
+            #print(pred)
+           # print(pred.type)
             # 梯度归零
             optimizer.zero_grad()
 
             # 计算损失
             loss = loss_f(y_pred, y)
-
+            #print('y:')
+            #print(y)
+           # print(type(y))
+            #print(y.shape)
+           # res = y[0].numel()
+            #print('res:')
+            #print(res)
             # 若是在进行模型训练，则需要进行后向传播及梯度更新
             if phase == "train":
                 loss.backward()
                 optimizer.step()
-                #scheduler.step()
 
             # 计算损失和
             running_loss += float(loss)
 
             # 统计预测正确的图片数
             running_corrects += torch.sum(pred == y.data)
-
+            #print(pred)
             # 共20000张测试图片，1250个batch，在使用500个及1000个batch对模型进行训练之后，输出训练结果
             if batch % 500 == 0 and phase == "train":
                 print("Batch {}, Train Loss:{:.4f}, Train ACC:{:.4F}%".format(batch, running_loss / batch,
@@ -225,25 +226,7 @@ for epoch in range(epoch_n):
         # 输出最终的结果
         print("{} Loss:{:.4f} Acc:{:.4f}%".format(phase, epoch_loss, epoch_acc))
 
-        if phase == 'val':
-            scheduler.step()
 
-        if phase == 'val' and epoch_acc > best_acc:
-            best_acc = epoch_acc
-            best_model_wts = copy.deepcopy(model.state_dict())
-            state = {
-                'state_dict': model.state_dict(),
-                'best_acc': best_acc,
-                'optimizer': optimizer.state_dict(),
-            }
-            torch.save(state, filename)
-            print('model saved')
-
-    print('Optimizer learning rate : {:.7f}'.format(optimizer.param_groups[0]['lr']))
-
-# 输出模型训练、参数优化用时
-time_end = time.time() - time_open
-print(time_end)
 tt = np.linspace(1, epoch_n, num=epoch_n)
 plt.figure()
 plt.plot(tt, loss_set, '-')
@@ -257,4 +240,106 @@ plt.xlabel('Echo')
 plt.ylabel('Acc')
 plt.show()
 
-#下面这一部分再继续以可衰减的更小的学习率训练所有层
+origin_labels = []
+pred_labels=[]
+
+#使用训练好的模型对所有数据重新预测一遍
+for batch, data in enumerate(dataloaders['train'], 1):
+    # X: 图片，16*3*224*224; y: 标签，16
+    X, y = data
+
+    # 修改处
+    if Use_gpu:
+        X, y = Variable(X.cuda()), Variable(y.cuda())
+    else:
+        X, y = Variable(X), Variable(y)
+
+    # y_pred: 预测概率矩阵，16*2
+    y_pred = model(X)
+    _, pred = torch.max(y_pred.data, 1)
+
+    print('y:')
+    print(y)
+    print(type(y))
+    print(y.shape)
+    res = y[0].numel()
+    print('res:')
+    print(res)
+
+    origin_labels_list = y.cpu().numpy().tolist()
+
+    for i in range(len(origin_labels_list)):
+        origin_labels.append(origin_labels_list[i])
+
+    #origin_labels.append(y[1].numel())
+    #origin_labels.append(y[2].numel())
+    #origin_labels.append(y[3].numel())
+
+    pred_labels_list = pred.cpu().numpy().tolist()
+
+    for i in range(len(pred_labels_list)):
+        pred_labels.append(pred_labels_list[i])
+
+    #pred_labels.append(pred[1].numel())
+    #pred_labels.append(pred[2].numel())
+    #pred_labels.append(pred[3].numel())
+
+#confusion = confusion_matrix(origin_labels, pred_labels)
+#print(confusion)
+
+labels = ['jiaza', 'liefeng', 'qikong', 'weihanjie', 'weironghe', 'zhengchang']
+
+tick_marks = np.array(range(len(labels))) + 0.5
+
+def plot_confusion_matrix(cm, title='Confusion Matrix', cmap=plt.cm.binary):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    xlocations = np.array(range(len(labels)))
+    plt.xticks(xlocations, labels, rotation=90)
+    plt.yticks(xlocations, labels)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+
+#ndarray_origin = np.array(origin_labels)
+#y_true = (ndarray_origin.flatten()).tolist()
+
+#y_pred = ((np.array(pred_labels)).flatten()).tolist()
+y_true = origin_labels
+y_pred = pred_labels
+
+print(y_true)
+print(len(y_true))
+print(y_pred)
+print(len(y_pred))
+
+cm = confusion_matrix(y_true, y_pred)
+np.set_printoptions(precision=2)
+cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+print(cm_normalized)
+plt.figure(figsize=(12, 8), dpi=120)
+
+ind_array = np.arange(len(labels))
+x, y = np.meshgrid(ind_array, ind_array)
+
+for x_val, y_val in zip(x.flatten(), y.flatten()):
+    c = cm_normalized[y_val][x_val]
+    if c > 0.01:
+        plt.text(x_val, y_val, "%0.2f" % (c,), color='red', fontsize=10, va='center', ha='center')
+# offset the tick
+plt.gca().set_xticks(tick_marks, minor=True)
+plt.gca().set_yticks(tick_marks, minor=True)
+plt.gca().xaxis.set_ticks_position('none')
+plt.gca().yaxis.set_ticks_position('none')
+plt.grid(True, which='minor', linestyle='-')
+plt.gcf().subplots_adjust(bottom=0.15)
+
+plot_confusion_matrix(cm_normalized, title='Normalized confusion matrix')
+# show confusion matrix
+plt.savefig('./data/confusion_matrix.png', format='png')
+plt.show()
+
+# 输出模型训练、参数优化用时
+time_end = time.time() - time_open
+print(time_end)
